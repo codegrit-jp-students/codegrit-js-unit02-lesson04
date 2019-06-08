@@ -11,7 +11,8 @@ class Chef {
       return name === dishName;
     })
     if (typeof checkRepertoire !== "undefined") {
-      return this[`_${dishName}`]; // 動的に異なるファンクションを呼び出す。
+      // 本来は料理名に併せて_cookCapreseなどのメソッドを呼び出す。
+      console.log(`${dishName}を作りました。`);
     } else {
       console.log("レパートリーにない料理です。")
     }
@@ -26,11 +27,13 @@ class Chef {
 }
 ```
 
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/j7kquLfm/1/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
 これで料理を作れるようになりました。例えば以下のようにして、トニオさんにカプレーゼを作ってもらうことが出来ます。
 
 ```javascript
-tonio.cook("カプレーゼ"); // => カプレーゼが返ってくる。
-tonio.cook("肉じゃが"); // => レパートリーにない料理です。
+tonio.cook("カプレーゼ"); // カプレーゼを作りました。
+tonio.cook("肉じゃが"); // レパートリーにない料理です。
 ```
 
 ## プライベートメソッドとカプセル化
@@ -66,7 +69,7 @@ class Chef {
     this.name = props.name
   }
   get lastName() {
-    return name.split(' ')[1];
+    return this.name.split(' ')[1];
   }
 }
 ```
@@ -80,6 +83,8 @@ let lastName = tonio.lastName
 console.log(lastName) // => "トラサルディー"
 ```
 
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/ga925z70/2/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
 ## setterメソッド
 
 setterメソッドはオブジェクトのプロパティをアップデートしたい際に利用します。例えば、chefにニックネームが出来た時にそれを追加するsetterメソッドを作ってみましょう。
@@ -87,16 +92,21 @@ setterメソッドはオブジェクトのプロパティをアップデート�
 ```javascript
 class Chef {
   constructor(props) {
-    this.experty = props.experty;
-    this.repertoire = props.repertoire || [];
-    this.name = props.name;
-    this.nickname = "";
+    this._experty = props.experty;
+    this._repertoire = props.repertoire || [];
+    this._name = props.name;
+    this._nickname = props.nickname || '';
   }
-  set setNickname(nickname) {
-    this.nickname = nickname;
+  set nickname(val) {
+    this._nickname = val;
+  }
+  get nickname() {
+    return this._nickname;
   }
 }
 
-tonio.setNickname("トニー");
+tonio.nickname = 'トニー';
 console.log(tonio.nickname); // => "トニー"
 ```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/h4ejkxz6/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>

@@ -3,12 +3,12 @@
 さて、実際の料理では料理の分野によって異なる材料を作ることがあります。イタリア料理ではパスタをパスタマシーンで作りますが、和食ではパスタは使いません。こうした違いを表すために継承という概念を使うことが出来ます。例えば`chef`クラスを継承した`italianChef`というクラスは`extends`というキーワードを用いて以下のように書くことが出来ます。
 
 ```javascript
-class italianChef extends Chef {}
+class ItalianChef extends Chef {}
 ```
 
 ### super
 
-さて、上記でchefクラスは、italianChefクラスの親クラスと呼びます。逆にitalianChefクラスはchefクラスの子クラスです。クラスの継承では、この親クラスのプロパティやメソッドにアクセスするために`super`というキーワードを利用します。
+さて、上記でchefクラスは、ItalianChefクラスの親クラスと呼びます。逆にItalianChefクラスはchefクラスの子クラスです。クラスの継承では、この親クラスのプロパティやメソッドにアクセスするために`super`というキーワードを利用します。
 
 ```javascript
 
@@ -16,17 +16,22 @@ class ItalianChef extends Chef {
   constructor(props) {
     super(props); // => chefクラスのコンストラクターを呼び出す。
   }
+
+  static create(props) {
+    return new ItalianChef(props);
+  }
 }
 
-const chef1 = Chef.create({
+const chef1 = ItalianChef.create({
   experty: "イタリア料理",
   name: "務 落合",
   repertoire: ["ボロネーゼ", "カルボナーラ", "ミネストローネ"]
 });
 
 chef1.cook("ボロネーゼ"); // => 親クラスのcookメソッドが呼び出される。
-
 ```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/m580x6hu/4/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 ### 子クラスにメソッドを追加する。
 
@@ -37,17 +42,18 @@ chef1.cook("ボロネーゼ"); // => 親クラスのcookメソッドが呼び出
 class ItalianChef extends Chef {
   constructor(props) {
     super(props); // => chefクラスのコンストラクターを呼び出す。
-    this.pastaCount = 0;
+    this._pastaCount = 0;
   }
   preparePasta() {
     // パスタ生地を作る。
-    this.pastaCount += 1; // パスタ生地の数を増やす。
+    this._pastaCount += 1; // パスタ生地の数を増やす。
   }
 }
 
 chef1.preparePasta(); // => ラザニア生地を作る。
 ```
 
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/729fvgn6/4/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 ### 親クラスのメソッドを書き換える(オーバーライド)
 
@@ -73,8 +79,12 @@ class ItalianChef extends Chef {
   }
 }
 
-chef1.cook("ボロネーゼ"); // => パスタ生地がありません!
+chef1.preparePasta();
+chef1.cook('ボロネーゼ'); // ボロネーゼを作りました。
+chef1.cook('カルボナーラ'); // パスタ生地がありません!
 ```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/2sk0xuLd/2/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 ## mixins
 
@@ -83,7 +93,6 @@ classは多重継承を行うことが出来ません。これはどういうこ
 例えばですが、ChefオブジェクトをJSONで返すためのモジュールと、シェフ、サービススタッフ両方に適用可能な評価の仕組みを持つモジュールを組み合わせたいとしましょう。
 
 すると以下のように書くことが出来ます。
-
 
 ```javascript
 const serializeMixin = (ParentClass) => {
@@ -101,13 +110,16 @@ const serializeMixin = (ParentClass) => {
 }
 
 const ratingMixin = (ParentClass) => {
-  class extends ParentClass {
-    constructor() {
-      super();
-      this.ratings = [];
+  return class extends ParentClass {
+    constructor(props) {
+      super(props);
+      this._ratings = [];
     }
     addRating(rating) {
-      this.ratings.push(rating);
+      this._ratings.push(rating);
+    }
+    get ratings() {
+      return this._ratings;
     }
   }
 }
@@ -132,6 +144,8 @@ chef1.addRating({
 })
 ```
 
+<iframe width="100%" height="600" src="//jsfiddle.net/codegrit_hiro/n4qjage7/1/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
+
 上記で、class名を書かずに、
 
 ```javascript
@@ -155,23 +169,33 @@ console.log(typeof Foo); // => "function"
 ES6のClassは厳密にはES5におけるprototypeを利用した、オブジェクト作成パターンをオブジェクト指向言語のように書けるようにしたものです。ES5でのインスタンス生成にはいくつかのパターンがありますが、ここではConstructorパターンというパターンを通してprototypeの概念を説明します。
 
 ```javascript
-function Chef(params) {
-  this.experty = props.experty;
-  this.repertoire = props.repertoire || [];
-  this.name = props.name;
+function Chef(props) {
+  this._experty = props.experty;
+  this._repertoire = props.repertoire || [];
+  this._name = props.name;
 }
 
-Chef.prototype.cook = function(name) {
-  // 料理を作る
+Chef.prototype.cook = function(dishName) {
+  const checkRepertoire = this._repertoire.find((name) => {
+    return name === dishName;
+  })
+  if (typeof checkRepertoire !== "undefined") {
+    console.log(`${dishName}を作りました。`);
+  } else {
+    console.log("レパートリーにない料理です。");
+  }
 }
 
 const tonio = new Chef({
   experty: "イタリア料理",
-  repertoire: ['カプレーゼ'、`プッタネスカ`、`小羊背肉のリンゴソースかけ`、`プリン`],
-  name: "トニオ トラサルディー"
+  repertoire: ['カプレーゼ','プッタネスカ', '小羊背肉のリンゴソースかけ','プリン'],
+  name: 'トニオ トラサルディー'
 });
-Chef.cook("カプレーゼ");
+
+tonio.cook("カプレーゼ");
 ```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/Lh7ycspt/2/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 上記を見て気づいたかと思いますが、cookファンクションを定義する時にChefファンクションに直接定義するのではなく、Chef.prototype.cookという風にprototypeを挟んで定義しています。このprototypeは、一部のビルトインファンクションを除く全てのファンクションがデフォルトで持つプロパティです。ファンクションを用いてインスタンスを作成する際には、このprototypeに定義されているプロパティが共有されます。Chefファンクションに直接、cookファンクションを定義した場合、インスタンス化したオブジェクトにはcookファンクションは共有されないため、prototypeを介す必要があるのです。
 

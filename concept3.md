@@ -5,20 +5,20 @@
 ```javascript
 class Chef {
   constructor(props) {
-    this.experty = props.experty;
-    this.repertoire = props.repertoire || [];
-    this.name = props.name;
-    this.nickname = "";
+    this._experty = props.experty;
+    this._repertoire = props.repertoire || [];
+    this._name = props.name;
+    this._nickname = "";
   }
   static aveNumOfRepertoire(chefs = []) {
-    if (chefs.size === 0) {
+    if (chefs.length === 0) {
       return 0;
     } else {
       let sum = 0.0;
-      for (chef of chefs) {
-        sum += chef.repertoire.size;
+      for (let chef of chefs) {
+        sum += chef._repertoire.length;
       }
-      return sum / chefs.size;
+      return sum / chefs.length;
     }
   }
 }
@@ -39,9 +39,11 @@ const chef2 = new Chef({
   repertoire: ["ボロネーゼ", "カルボナーラ", "ミネストローネ"]
 });
 
-const ave = Chef.aveNumOfRepertoire([chefi, chef2, tonio]);
+const ave = Chef.aveNumOfRepertoire([chef1, chef2, tonio]);
 console.log(ave); // => 3.0
 ```
+
+<iframe width="100%" height="600" src="//jsfiddle.net/codegrit_hiro/guy2tLom/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
 
 このようにstaticメソッドはインスタンスに対して利用するユーティリティメソッドを作成するのに便利です。
 
@@ -49,10 +51,10 @@ console.log(ave); // => 3.0
 ```javascript
 class Chef {
   constructor(props) {
-    this.experty = props.experty;
-    this.repertoire = props.repertoire || [];
-    this.name = props.name;
-    this.nickname = "";
+    this._experty = props.experty;
+    this._repertoire = props.repertoire || [];
+    this._name = props.name;
+    this._nickname = "";
   }
   static create(props) {
     return new Chef(props);
@@ -67,3 +69,5 @@ const props = {
 
 chef1 = Chef.create(props);
 ```
+
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/nucm50d3/3/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>

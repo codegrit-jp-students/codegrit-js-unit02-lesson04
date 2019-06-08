@@ -39,3 +39,5 @@ const tonio = new Chef({
 ```
 
 これでトニオさんという、シェフを作り出すことが出来ました。
+
+<iframe width="100%" height="300" src="//jsfiddle.net/codegrit_hiro/kc9hfzm8/1/embedded/js,result/dark/" allowfullscreen="allowfullscreen" allowpaymentrequest frameborder="0"></iframe>
